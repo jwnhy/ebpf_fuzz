@@ -101,10 +101,43 @@ impl<'a> QemuInstance<'a> {
     }
 
     pub fn exec_cmd(&mut self, cmd: &str) {
+        use std::io::prelude::*;
+        let sess = self.setup_session();
+        let mut chan = sess
+            .channel_session()
+            .expect(&format!("fail to open channel: {}", self.id));
+        chan.exec(cmd)
+            .expect(&format!("fail to exec {}: {}", cmd, self.id));
+        let mut s = String::new();
+        chan.read_to_string(&mut s).unwrap();
+        println!("{}", s);
+        chan.wait_close()
+            .expect(&format!("fail to close channel: {}", self.id));
+        println!("{}", chan.exit_status().unwrap());
+    }
+
+    pub fn send_file(&mut self, local_path: &str, remote_path: &str) {
+        use std::fs::read;
+        use std::io::prelude::*;
+        use std::path::Path;
+        let sess = self.setup_session();
+        let mut remote_file = sess
+            .scp_send(
+                Path::new(remote_path),
+                0o644,
+                Path::new(local_path).metadata().unwrap().len(),
+                None,
+            )
+            .expect(&format!("fail to open remote file: {}", self.id));
+        remote_file
+            .write_all(&read(local_path).expect(&format!("fail to read local file: {}", self.id)))
+            .expect(&format!("fail to upload file: {}", self.id));
+    }
+
+    fn setup_session(&mut self) -> ssh2::Session {
         use ssh2::Session;
         use std::net::TcpStream;
         use std::path::Path;
-        use std::io::prelude::*;
 
         let tcp = TcpStream::connect(&format!("127.0.0.1:{}", self.fwdport))
             .expect(&format!("fail to start tcp: {}", self.id));
@@ -119,15 +152,6 @@ impl<'a> QemuInstance<'a> {
             None,
         )
         .expect(&format!("auth failed: {}", self.id));
-        let mut chan = sess
-            .channel_session()
-            .expect(&format!("fail to open channel: {}", self.id));
-        chan.exec(cmd)
-            .expect(&format!("fail to exec {}: {}", cmd, self.id));
-        let mut s = String::new();
-        chan.read_to_string(&mut s).unwrap();
-        println!("{}", s);
-        chan.wait_close();
-        println!("{}", chan.exit_status().unwrap());
+        sess
     }
 }

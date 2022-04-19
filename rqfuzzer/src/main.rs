@@ -10,6 +10,7 @@ fn main() {
     let mut inst = qenv.new_instance();
     let inst2 = qenv.new_instance();
     println!("{:?}\n{:?}", inst, inst2);
+    inst.launch_and_attach();
     inst.launch();
     sleep(Duration::new(5, 0));
     inst.exec_cmd("ls /");
