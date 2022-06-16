@@ -14,7 +14,7 @@ rqfuzzer:
 
 kernel:
 ifeq (,$(wildcard $(KERNEL_DIR)/arch/x86_64/boot/bzImage))
-		cd $(KERNEL_DIR) && $(MAKE) -j13
+		cd $(KERNEL_DIR) && $(MAKE) -j21
 endif
 	cp $(KERNEL_DIR)/arch/x86_64/boot/bzImage ./build/
 

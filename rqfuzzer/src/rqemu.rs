@@ -59,7 +59,7 @@ impl<'a> QemuEnv<'a> {
             .args(["-kernel", &self.bzimage])
             .args([
                 "-append",
-                "console=ttyS0 root=/dev/sda earlyprintk=serial net.ifnames=0",
+                "console=ttyS0 root=/dev/sda earlyprintk=serial net.ifnames=0 nokaslr",
             ])
             .args(["-drive", &format!("file={},format=raw", self.rootfs)])
             .args([
@@ -67,7 +67,8 @@ impl<'a> QemuEnv<'a> {
                 &format!("user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:{}-:22", fwdport),
             ])
             .args(["-net", "nic,model=e1000"])
-            .args(["-enable-kvm", "--nographic", "-snapshot"]);
+            .args(["-enable-kvm", "--nographic", "-snapshot"])
+            .args(["-s"]);
         let inst = QemuInstance {
             id: self.instances.len(),
             env: self,
