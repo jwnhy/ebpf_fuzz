@@ -121,17 +121,23 @@ impl<'a> QemuInstance<'a> {
         use std::io::prelude::*;
         use std::path::Path;
         let sess = self.setup_session();
+        let local_file = Path::new(local_path);
+        let remote_file = Path::new(remote_path).join(local_file.file_name().unwrap());
         let mut remote_file = sess
             .scp_send(
-                Path::new(remote_path),
+                remote_file.as_path(),
                 0o644,
-                Path::new(local_path).metadata().unwrap().len(),
+                local_file.metadata().unwrap().len(),
                 None,
             )
             .expect(&format!("fail to open remote file: {}", self.id));
         remote_file
             .write_all(&read(local_path).expect(&format!("fail to read local file: {}", self.id)))
             .expect(&format!("fail to upload file: {}", self.id));
+    }
+
+    pub fn print_cred(&self) {
+        println!("ssh -p{} -i{} {}@127.0.0.1", self.fwdport, self.env.host_pubkey, self.env.guestname)
     }
 
     fn setup_session(&mut self) -> ssh2::Session {

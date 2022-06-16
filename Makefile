@@ -9,8 +9,8 @@ build:
 	-mkdir build
 
 rqfuzzer:
-	cd $(FUZZER_DIR) && cargo build --release
-	cp $(FUZZER_DIR)/target/release/rqfuzzer ./build/
+	cd $(FUZZER_DIR) && cargo build 
+	cp $(FUZZER_DIR)/target/debug/rqfuzzer ./build/
 
 kernel:
 ifeq (,$(wildcard $(KERNEL_DIR)/arch/x86_64/boot/bzImage))
