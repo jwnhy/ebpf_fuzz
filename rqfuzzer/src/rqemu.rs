@@ -41,7 +41,7 @@ impl<'a> QemuEnv<'a> {
             uid: 0,
             host_pubkey: "./stretch.id_rsa",
             qemu_exec: "/usr/bin/qemu-system-x86_64",
-            memsz: 256,
+            memsz: 4096,
             core: 1,
             bzimage: "./bzImage",
             rootfs: "rootfs.img",
