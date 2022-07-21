@@ -1,13 +1,12 @@
 #[allow(dead_code)]
 pub mod rqemu;
-use std::thread::sleep;
-use std::time::Duration;
-use std::path::Path;
+pub mod genprog;
 use rqemu::*;
+use genprog::*;
 
 fn main() {
     println!("Hello, world!");
-    let mut qenv = QemuEnv::new();
+    let qenv = QemuEnv::new();
     let mut inst = qenv.new_instance();
     println!("{:?}\n", inst);
     //inst.launch_and_attach();
